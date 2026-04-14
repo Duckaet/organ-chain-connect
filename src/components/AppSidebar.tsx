@@ -7,6 +7,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { WalletButton } from "./WalletButton";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavItem { label: string; to: string; icon: React.ElementType; }
 
@@ -44,18 +45,31 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-sidebar border-r border-sidebar-border transition-transform lg:static lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-out lg:static lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-14 items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-primary" />
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Heart className="w-6 h-6 text-primary" />
+            </motion.div>
             <span className="font-bold text-lg text-sidebar-foreground">OrganX</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-sidebar-foreground">
@@ -69,23 +83,29 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {nav.map((item) => {
+          {nav.map((item, i) => {
             const active = location.pathname === item.to;
             return (
-              <Link
+              <motion.div
                 key={item.to}
-                to={item.to}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent"
-                )}
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05, duration: 0.3 }}
               >
-                <item.icon className="w-4 h-4 shrink-0" />
-                {item.label}
-              </Link>
+                <Link
+                  to={item.to}
+                  onClick={() => setSidebarOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    active
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm shadow-primary/20"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:translate-x-1"
+                  )}
+                >
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  {item.label}
+                </Link>
+              </motion.div>
             );
           })}
         </nav>
@@ -93,7 +113,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="p-3 border-t border-sidebar-border">
           <button
             onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 hover:translate-x-1"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -103,7 +123,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center justify-between border-b px-4 shrink-0">
+        <header className="flex h-14 items-center justify-between border-b px-4 shrink-0 backdrop-blur-sm bg-background/80">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-foreground">
             <Menu className="w-5 h-5" />
           </button>
@@ -111,7 +131,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <WalletButton />
         </header>
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children}
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            {children}
+          </motion.div>
         </main>
       </div>
     </div>
