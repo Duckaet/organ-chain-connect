@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import { BrowserProvider, JsonRpcProvider, Contract } from "ethers";
+import { BrowserProvider, JsonRpcProvider, Contract, type Eip1193Provider } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, RPC_URL } from "@/config/contract";
 
 interface WalletContextType {
@@ -7,24 +7,30 @@ interface WalletContextType {
   isConnecting: boolean;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
-  getContract: () => Contract | null;
+  getContract: () => Promise<Contract | null>;
   getReadOnlyContract: () => Contract;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
+
+declare global {
+  interface Window {
+    ethereum?: Eip1193Provider;
+  }
+}
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
   const connectWallet = useCallback(async () => {
-    if (typeof window === "undefined" || !(window as any).ethereum) {
+    if (typeof window === "undefined" || !window.ethereum) {
       alert("MetaMask is not installed. Please install MetaMask to use blockchain features.");
       return;
     }
     setIsConnecting(true);
     try {
-      const provider = new BrowserProvider((window as any).ethereum);
+      const provider = new BrowserProvider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
       setWalletAddress(accounts[0]);
     } catch (err) {
@@ -38,11 +44,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setWalletAddress(null);
   }, []);
 
-  const getContract = useCallback(() => {
-    if (typeof window === "undefined" || !(window as any).ethereum) return null;
+  const getContract = useCallback(async () => {
+    if (typeof window === "undefined" || !window.ethereum) return null;
     try {
-      const provider = new BrowserProvider((window as any).ethereum);
-      const signer = (provider as any).getSigner();
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
       return new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
     } catch {
       return null;

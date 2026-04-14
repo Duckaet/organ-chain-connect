@@ -29,7 +29,7 @@ function AssignRequest() {
 
     if (walletAddress && doctor) {
       try {
-        const contract = getContract();
+        const contract = await getContract();
         if (contract) {
           const tx = await contract.assignRequest(parseInt(requestId.replace("r", "")), doctor.walletAddress);
           txHash = tx.hash;

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useData } from "@/context/DataContext";
+import { useWallet } from "@/context/WalletContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,16 +14,36 @@ export const Route = createFileRoute("/admin/add-doctor")({
 
 function AddDoctor() {
   const { hospitals, addDoctor } = useData();
+  const { walletAddress, getContract } = useWallet();
   const [name, setName] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [email, setEmail] = useState("");
   const [hospitalId, setHospitalId] = useState("");
+  const [doctorWalletAddress, setDoctorWalletAddress] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addDoctor({ id: `d${Date.now()}`, name, specialization, email, hospitalId, walletAddress: "0x0000000000000000000000000000000000000000" });
+    setSubmitting(true);
+
+    if (walletAddress) {
+      try {
+        const contract = await getContract();
+        if (contract) {
+          const tx = await contract.registerDoctor(doctorWalletAddress);
+          await tx.wait();
+          toast.success(`Doctor wallet registered on-chain: ${doctorWalletAddress.slice(0, 10)}...`);
+        }
+      } catch (err) {
+        console.warn("registerDoctor failed (using local-only doctor):", err);
+        toast.info("Could not register doctor on-chain, added locally only");
+      }
+    }
+
+    addDoctor({ id: `d${Date.now()}`, name, specialization, email, hospitalId, walletAddress: doctorWalletAddress });
     toast.success(`Dr. ${name} added successfully`);
-    setName(""); setSpecialization(""); setEmail(""); setHospitalId("");
+    setName(""); setSpecialization(""); setEmail(""); setHospitalId(""); setDoctorWalletAddress("");
+    setSubmitting(false);
   };
 
   return (
@@ -52,7 +73,18 @@ function AddDoctor() {
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" className="w-full" disabled={!hospitalId}>Add Doctor</Button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Doctor Wallet Address</label>
+              <Input
+                value={doctorWalletAddress}
+                onChange={(e) => setDoctorWalletAddress(e.target.value)}
+                required
+                placeholder="0x..."
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={!hospitalId || !doctorWalletAddress || submitting}>
+              {submitting ? "Adding..." : "Add Doctor"}
+            </Button>
           </form>
         </CardContent>
       </Card>

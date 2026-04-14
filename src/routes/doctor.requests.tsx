@@ -30,7 +30,7 @@ function DoctorRequests() {
   const selectedPatient = selected ? patients.find((p) => p.id === selected.patientId) : null;
 
   const handleReview = async () => {
-    if (!selectedRequest || !reason.trim()) return;
+    if (!selectedRequest || !reason.trim() || !selected) return;
     setSubmitting(true);
 
     const reasonHash = keccak256(toUtf8Bytes(reason));
@@ -38,10 +38,15 @@ function DoctorRequests() {
 
     if (walletAddress) {
       try {
-        const contract = getContract();
+        const contract = await getContract();
         if (contract) {
-          const statusCode = decision === "APPROVED" ? 4 : 5;
-          const tx = await contract.updateRequestStatus(parseInt(selectedRequest.replace("r", "")), statusCode, reasonHash);
+          const requestId = parseInt(selectedRequest.replace("r", ""));
+          if (selected.status === "ASSIGNED") {
+            const reviewTx = await contract.beginReview(requestId);
+            await reviewTx.wait();
+          }
+
+          const tx = await contract.updateRequestStatus(requestId, decision === "APPROVED", reasonHash);
           txHash = tx.hash;
           toast.success(`Transaction submitted: ${txHash.slice(0, 10)}...`);
         }

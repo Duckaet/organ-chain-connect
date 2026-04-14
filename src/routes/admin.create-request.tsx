@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { keccak256, toUtf8Bytes } from "ethers";
+import type { OrganRequest } from "@/data/mockData";
 
 export const Route = createFileRoute("/admin/create-request")({
   component: CreateRequest,
@@ -26,16 +26,29 @@ function CreateRequest() {
     e.preventDefault();
     setSubmitting(true);
 
-    const requestId = `r${Date.now()}`;
+    let requestId = `r${Date.now()}`;
     const patient = patients.find((p) => p.id === patientId);
     let txHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`;
 
     // Attempt blockchain call
     if (walletAddress) {
       try {
-        const contract = getContract();
+        const contract = await getContract();
         if (contract) {
-          const tx = await contract.createRequest(parseInt(patientId.replace("p", "")), organNeeded);
+          const tx = await contract.createRequest(patientId, organNeeded);
+          const receipt = await tx.wait();
+          const createdLog = receipt?.logs
+            .map((log: { topics: ReadonlyArray<string>; data: string }) => {
+              try {
+                return contract.interface.parseLog(log);
+              } catch {
+                return null;
+              }
+            })
+            .find((parsed) => parsed?.name === "RequestCreated");
+          if (createdLog?.args?.requestId !== undefined) {
+            requestId = `r${createdLog.args.requestId.toString()}`;
+          }
           txHash = tx.hash;
           toast.success(`Transaction submitted: ${txHash.slice(0, 10)}...`);
         }
@@ -51,7 +64,7 @@ function CreateRequest() {
       id: requestId,
       patientId,
       organNeeded,
-      urgencyLevel: urgency as any,
+      urgencyLevel: urgency as OrganRequest["urgencyLevel"],
       status: "PENDING",
       txHash,
       createdAt: new Date().toISOString().split("T")[0],
