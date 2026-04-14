@@ -37,7 +37,7 @@ function LoginPage() {
 
   const handleLogin = () => {
     if (!selectedRole || !name.trim()) return;
-    let id = crypto.randomUUID();
+    let id = `user-${Date.now()}`;
     // Map to mock data IDs for doctors/patients
     if (selectedRole === "doctor") {
       const doc = doctors.find((d) => d.name.toLowerCase().includes(name.toLowerCase()));
