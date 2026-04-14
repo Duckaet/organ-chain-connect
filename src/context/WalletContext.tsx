@@ -24,10 +24,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isConnecting, setIsConnecting] = useState(false);
 
   const connectWallet = useCallback(async () => {
-    if (typeof window === "undefined" || !window.ethereum) {
-      alert("MetaMask is not installed. Please install MetaMask to use blockchain features.");
-      return;
-    }
+    if (typeof window === "undefined" || !window.ethereum) return;
     setIsConnecting(true);
     try {
       const provider = new BrowserProvider(window.ethereum);

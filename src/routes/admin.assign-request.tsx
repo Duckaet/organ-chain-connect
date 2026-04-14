@@ -36,8 +36,7 @@ function AssignRequest() {
           toast.success(`Transaction submitted: ${txHash.slice(0, 10)}...`);
         }
       } catch (err) {
-        console.warn("Contract call failed (using mock):", err);
-        toast.info("Using mock transaction");
+        console.warn("Contract call unavailable:", err);
       }
     }
 

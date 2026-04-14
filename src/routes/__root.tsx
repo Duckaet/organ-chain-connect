@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { DataProvider } from "@/context/DataContext";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { WalletProvider } from "@/context/WalletContext";
 import { AppLayout } from "@/components/AppSidebar";
 
@@ -29,8 +30,8 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "OrganX — Blockchain Organ Donation Management" },
-      { name: "description", content: "A blockchain-based organ donation management system" },
+      { title: "organixis — Organ Care Coordination" },
+      { name: "description", content: "A welcoming organ care coordination experience for hospitals, doctors, and patients." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -44,24 +45,33 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head><HeadContent /></head>
       <body>{children}<Scripts /></body>
     </html>
   );
 }
 
+function AppFrame() {
+  const { theme } = useTheme();
+  return (
+    <WalletProvider>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+      <Toaster theme={theme} position="top-right" richColors />
+    </WalletProvider>
+  );
+}
+
 function RootComponent() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <WalletProvider>
-          <AppLayout>
-            <Outlet />
-          </AppLayout>
-          <Toaster theme="dark" position="top-right" richColors />
-        </WalletProvider>
-      </DataProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <DataProvider>
+          <AppFrame />
+        </DataProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -19,7 +19,7 @@ function PatientRequest() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">My Organ Request</h1>
-        <p className="text-muted-foreground">No organ request found. Try logging in with a mock patient name (e.g. "Alice Johnson").</p>
+        <p className="text-muted-foreground">No organ request is linked to this account yet.</p>
       </div>
     );
   }

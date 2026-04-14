@@ -52,7 +52,6 @@ function DoctorRequests() {
         }
       } catch (err) {
         console.warn("Contract call failed:", err);
-        toast.info("Using mock transaction");
       }
     }
 

@@ -26,7 +26,7 @@ function AddDoctor() {
     e.preventDefault();
     setSubmitting(true);
 
-    if (walletAddress) {
+    if (walletAddress && doctorWalletAddress) {
       try {
         const contract = await getContract();
         if (contract) {
@@ -36,11 +36,17 @@ function AddDoctor() {
         }
       } catch (err) {
         console.warn("registerDoctor failed (using local-only doctor):", err);
-        toast.info("Could not register doctor on-chain, added locally only");
       }
     }
 
-    addDoctor({ id: `d${Date.now()}`, name, specialization, email, hospitalId, walletAddress: doctorWalletAddress });
+    addDoctor({
+      id: `d${Date.now()}`,
+      name,
+      specialization,
+      email,
+      hospitalId,
+      walletAddress: doctorWalletAddress || "0x0000000000000000000000000000000000000000",
+    });
     toast.success(`Dr. ${name} added successfully`);
     setName(""); setSpecialization(""); setEmail(""); setHospitalId(""); setDoctorWalletAddress("");
     setSubmitting(false);
@@ -78,11 +84,10 @@ function AddDoctor() {
               <Input
                 value={doctorWalletAddress}
                 onChange={(e) => setDoctorWalletAddress(e.target.value)}
-                required
                 placeholder="0x..."
               />
             </div>
-            <Button type="submit" className="w-full" disabled={!hospitalId || !doctorWalletAddress || submitting}>
+            <Button type="submit" className="w-full" disabled={!hospitalId || submitting}>
               {submitting ? "Adding..." : "Add Doctor"}
             </Button>
           </form>

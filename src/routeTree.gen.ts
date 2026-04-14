@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SigninRouteImport } from './routes/signin'
+import { Route as LandingRouteImport } from './routes/landing'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PatientRequestRouteImport } from './routes/patient.request'
 import { Route as PatientProfileRouteImport } from './routes/patient.profile'
@@ -23,6 +26,21 @@ import { Route as AdminAssignRequestRouteImport } from './routes/admin.assign-re
 import { Route as AdminAddPatientRouteImport } from './routes/admin.add-patient'
 import { Route as AdminAddDoctorRouteImport } from './routes/admin.add-doctor'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -91,6 +109,9 @@ const AdminAddDoctorRoute = AdminAddDoctorRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/landing': typeof LandingRoute
+  '/signin': typeof SigninRoute
+  '/signup': typeof SignupRoute
   '/admin/add-doctor': typeof AdminAddDoctorRoute
   '/admin/add-patient': typeof AdminAddPatientRoute
   '/admin/assign-request': typeof AdminAssignRequestRoute
@@ -106,6 +127,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/landing': typeof LandingRoute
+  '/signin': typeof SigninRoute
+  '/signup': typeof SignupRoute
   '/admin/add-doctor': typeof AdminAddDoctorRoute
   '/admin/add-patient': typeof AdminAddPatientRoute
   '/admin/assign-request': typeof AdminAssignRequestRoute
@@ -122,6 +146,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/landing': typeof LandingRoute
+  '/signin': typeof SigninRoute
+  '/signup': typeof SignupRoute
   '/admin/add-doctor': typeof AdminAddDoctorRoute
   '/admin/add-patient': typeof AdminAddPatientRoute
   '/admin/assign-request': typeof AdminAssignRequestRoute
@@ -139,6 +166,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/landing'
+    | '/signin'
+    | '/signup'
     | '/admin/add-doctor'
     | '/admin/add-patient'
     | '/admin/assign-request'
@@ -154,6 +184,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/landing'
+    | '/signin'
+    | '/signup'
     | '/admin/add-doctor'
     | '/admin/add-patient'
     | '/admin/assign-request'
@@ -169,6 +202,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/landing'
+    | '/signin'
+    | '/signup'
     | '/admin/add-doctor'
     | '/admin/add-patient'
     | '/admin/assign-request'
@@ -185,6 +221,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LandingRoute: typeof LandingRoute
+  SigninRoute: typeof SigninRoute
+  SignupRoute: typeof SignupRoute
   AdminAddDoctorRoute: typeof AdminAddDoctorRoute
   AdminAddPatientRoute: typeof AdminAddPatientRoute
   AdminAssignRequestRoute: typeof AdminAssignRequestRoute
@@ -201,6 +240,27 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -297,6 +357,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LandingRoute: LandingRoute,
+  SigninRoute: SigninRoute,
+  SignupRoute: SignupRoute,
   AdminAddDoctorRoute: AdminAddDoctorRoute,
   AdminAddPatientRoute: AdminAddPatientRoute,
   AdminAssignRequestRoute: AdminAssignRequestRoute,

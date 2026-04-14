@@ -53,11 +53,8 @@ function CreateRequest() {
           toast.success(`Transaction submitted: ${txHash.slice(0, 10)}...`);
         }
       } catch (err) {
-        console.warn("Contract call failed (using mock):", err);
-        toast.info("Using mock transaction (contract not deployed)");
+        console.warn("Contract call unavailable:", err);
       }
-    } else {
-      toast.info("No wallet connected — using mock transaction");
     }
 
     addOrganRequest({

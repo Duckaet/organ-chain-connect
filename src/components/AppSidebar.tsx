@@ -7,7 +7,9 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { WalletButton } from "./WalletButton";
+import { ThemeToggle } from "./ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
+import logoPng from "@/assets/organixis-logo.png";
 
 interface NavItem { label: string; to: string; icon: React.ElementType; }
 
@@ -37,7 +39,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  if (!user) return <>{children}</>;
+  if (!user) {
+    return (
+      <div className="min-h-screen">
+        <div className="fixed right-4 top-4 z-50">
+          <ThemeToggle />
+        </div>
+        {children}
+      </div>
+    );
+  }
 
   const nav = user.role === "admin" ? adminNav : user.role === "doctor" ? doctorNav : patientNav;
   const roleLabel = user.role === "admin" ? "Hospital Admin" : user.role === "doctor" ? "Doctor" : "Patient";
@@ -64,13 +75,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}>
         <div className="flex h-14 items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Heart className="w-6 h-6 text-primary" />
-            </motion.div>
-            <span className="font-bold text-lg text-sidebar-foreground">OrganX</span>
+            <img src={logoPng} alt="organixis" className="h-7 w-7 rounded-md border border-sidebar-border" />
+            <span className="font-bold text-lg text-sidebar-foreground">organixis</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-sidebar-foreground">
             <X className="w-5 h-5" />
@@ -112,7 +118,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="p-3 border-t border-sidebar-border">
           <button
-            onClick={logout}
+            onClick={() => {
+              logout();
+              window.location.href = "/landing";
+            }}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 hover:translate-x-1"
           >
             <LogOut className="w-4 h-4" />
@@ -127,8 +136,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-foreground">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="hidden lg:block" />
-          <WalletButton />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <WalletButton />
+          </div>
         </header>
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <motion.div
